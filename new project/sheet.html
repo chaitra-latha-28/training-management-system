@@ -1016,7 +1016,7 @@
         const STORAGE_COLLEGES = 'collegesDataV2';
         const STORAGE_EMPLOYEES = 'employeesData';
         const STORAGE_WEBHOOK = 'tms_webhook_url';
-        const SERVER_BASE = 'http://localhost:3000';
+        const SERVER_BASE = window.location.origin;
 
         const codeToLabelMap = {
             "1A-1": "College details confirmed",
@@ -1219,21 +1219,27 @@
                 console.warn('LocalStorage load failed', err);
             }
 
-            // Attempt backend fetch
-            try {
-                const res = await fetch(`${SERVER_BASE}/api/state`);
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json && json.data) {
-                        colleges = json.data.colleges || colleges;
-                        employees = json.data.employees || employees;
-                    }
-                }
-            } catch (err) {
-                console.warn('Backend server state fetch unavailable', err);
-            }
+           // Attempt backend fetch
+try {
+    const res = await fetch(`${SERVER_BASE}/api/state`);
+    if (res.ok) {
+        const json = await res.json();
+        if (json && json.data) {
+            colleges = json.data.colleges || colleges;
+            employees = json.data.employees || employees;
+        }
+    }
 
-            renderSpreadsheets();
+    // Load activity logs from server
+    await fetchActivityLogs();
+
+} catch (err) {
+    console.warn('Backend server state fetch unavailable', err);
+}
+
+// Refresh all sheets
+renderSpreadsheets();
+renderLogsSheet();
 
             // Restore saved webhook URL into the settings input
             const savedWebhook = localStorage.getItem(STORAGE_WEBHOOK);
