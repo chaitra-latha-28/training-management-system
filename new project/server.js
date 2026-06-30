@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const DB_PORT = process.env.DB_PORT || 3306;
 const DB_HOST = process.env.DB_HOST || 'localhost';
 const DB_USER = process.env.DB_USER || 'root';
 const DB_PASSWORD = process.env.DB_PASSWORD || 'root';
@@ -24,8 +25,12 @@ const pool = mysql.createPool({
 });
 
 async function initDb() {
-  const connection = await mysql.createConnection({ host: DB_HOST, user: DB_USER, password: DB_PASSWORD });
-  await connection.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
+  const connection = await mysql.createConnection({
+  host: DB_HOST,
+  port: DB_PORT,
+  user: DB_USER,
+  password: DB_PASSWORD
+});
   await connection.end();
 
   const db = await pool.getConnection();
